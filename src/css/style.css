@@ -13,8 +13,9 @@ body {
 .column {
     background-color: #c4c9cc;
     box-sizing: border-box;
-    padding: 10px 5px;
+    padding: 10px 10px;
     margin: 5px 2.5px;
+    border-radius: 10px;
 }
 
 .header {
@@ -45,4 +46,23 @@ body {
 .add-card-btn {
     background-color: #32CD32;
     color: #fff;
+}
+
+.card {
+    background-color: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    margin: 10px 0;
+    padding: 10px 5px;
+    font-family: Open Sans, serif;
+    font-size: 16px;
+}
+
+.close-card-icon-disabled {
+    display: none;
+}
+
+.close-card-icon-active {
+    display: block;
 }
