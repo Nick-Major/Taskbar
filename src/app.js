@@ -18,16 +18,28 @@ document.addEventListener('DOMContentLoaded', ()=> {
             
             e.target.classList.add('hide-btn');
             console.log(input);
-            // input.addEventListener('change', (e)=> {
+            input.addEventListener('change', (e)=> {
+                e.preventDefault();
 
-            // })
+                const value = e.target.value;
+                const cardAddBtn = column.querySelector('.add-card-btn');
+                console.log(cardAddBtn);
+
+                cardAddBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const cardContainer = document.createElement('div');
+                    cardContainer.classList.add('card-container');
+                    column.append(cardContainer);
+                    const card = new Card(cardContainer);
+                    card.bindCardToDOM(value);
+                })
+            })
         })
     });
 
     document.addEventListener('click', (e) => {
         const target = e.target;
         const isClose = target.classList.contains('close-add-form');
-        const isCardAddBtn = target.classList.contains('add-card-btn');
     
         if(isClose) {
             const closeEl = target;
@@ -39,21 +51,19 @@ document.addEventListener('DOMContentLoaded', ()=> {
             btnEl.classList.remove('hide-btn');
         }
     
-        if(isCardAddBtn) {
-            e.preventDefault();
-            const addCardBtn = target;
-            const column = addCardBtn.closest('.column');
-            const input = addCardBtn.closest('add-card-input');
-            console.log(input);
+        // if(isCardAddBtn) {
+        //     e.preventDefault();
+        //     const addCardBtn = target;
+        //     const column = addCardBtn.closest('.column');
             
             
-            const cardContainer = document.createElement('div');
-            cardContainer.classList.add('card-container');
-            column.append(cardContainer);
+        //     const cardContainer = document.createElement('div');
+        //     cardContainer.classList.add('card-container');
+        //     column.append(cardContainer);
             
-            const card = new Card(cardContainer);
-            card.bindCardToDOM(value);
-        }
+        //     const card = new Card(cardContainer);
+        //     card.bindCardToDOM(value);
+        // }
     
     })
     
