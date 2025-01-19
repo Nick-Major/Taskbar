@@ -66,3 +66,11 @@ body {
 .close-card-icon-active {
     display: block;
 }
+
+.card-content {
+    padding: 10px 5px;
+}
+
+.card-container {
+    width: 100%;
+}
