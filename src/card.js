@@ -7,7 +7,7 @@ export default class Card {
         return `
         <div class="card">
             <div class="card-content">Что-то</div>
-            <span class="close-card-icon-disabled">X</span>
+            <span class="close-card-icon hidden">X</span>
         </div>
         `
     }
@@ -21,7 +21,7 @@ export default class Card {
     }
 
     static get closeIcon() {
-        return '.close-card-icon-disabled';
+        return '.close-card-icon hidden';
     }
 
     bindCardToDOM(value) {

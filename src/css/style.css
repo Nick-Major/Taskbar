@@ -34,12 +34,33 @@ body {
     background-color: #fff;
 }
 
-.add-card {
+.card-list {
     display: flex;
     flex-direction: column;
 }
 
-.hide-btn {
+.form-container {
+    width: 100%;
+    background-color: #fff;
+}
+
+.add-card {
+    box-sizing: border-box;
+    padding: 5px 3px;
+    border-radius: 10px;
+    margin: 5px auto;
+}
+
+.add-card-input {
+    border: none;
+    margin-bottom: 5px;
+}
+
+.add-card-input:focus {
+    outline: none;
+}
+
+.hidden {
     display: none;
 }
 
@@ -49,18 +70,19 @@ body {
 }
 
 .card {
+    position: relative;
     background-color: #fff;
     width: 100%;
     box-sizing: border-box;
     border-radius: 10px;
-    margin: 10px 0;
+    margin: 5px 0;
     padding: 10px 5px;
     font-family: Open Sans, serif;
     font-size: 16px;
 }
 
-.close-card-icon-disabled {
-    display: none;
+.close-card-icon {
+    position: absolute;
 }
 
 .close-card-icon-active {
