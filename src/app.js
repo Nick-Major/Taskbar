@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     document.addEventListener('click', (e) => {
         const target = e.target;
         const isClose = target.classList.contains('close-add-form');
+        const isCardCloseIcon = target.classList.contains('close-card-icon');
     
         if(isClose) {
             const closeEl = target;
@@ -61,6 +62,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
             
             formContainer.remove();
             btnEl.classList.remove('hidden');
+        }
+
+        if(isCardCloseIcon) {
+            const cardClose = target;
+            const cardContainer = cardClose.closest('.card-container');
+            cardContainer.remove();
         }
     
     });
@@ -72,22 +79,24 @@ document.addEventListener('DOMContentLoaded', ()=> {
         if(isCard) {
             const card = target;
             const closeCard = card.querySelector('.close-card-icon');
+            console.log('Mouseover!');
+            
             closeCard.classList.remove('hidden');
         }
-    })
+    });
 
     document.addEventListener('mouseout', (e) => {
         const target = e.target;
-        const isCard = target.classList.contains('card');
+        const isCardContainer = target.classList.contains('card-container');
 
-        if(isCard) {
-            const card = target;
-            const closeCard = card.querySelector('.close-card-icon');
+        if(isCardContainer) {
+            const cardContainer = target;
+            const closeCard = cardContainer.querySelector('.close-card-icon');
+            console.log('Mouseout!');
+            
             closeCard.classList.add('hidden');
         }
-
     });
-    
 
 })
 

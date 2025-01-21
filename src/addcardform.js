@@ -6,9 +6,9 @@ export default class AddCardForm {
     static get markup() {
         return `
      <form class="add-card">
-        <input class="add-card-input" type="text" placeholder="Enter a title for this card...">
+        <input class="add-card-input" type="text" required placeholder="Enter a title for this card...">
         <div class="add-card-wrap">
-            <button class="add-card-btn">Add Card</button>
+            <button class="add-card-btn" type="submit">Add Card</button>
             <span class="close-add-form">X</span>
         </div>
      </form>

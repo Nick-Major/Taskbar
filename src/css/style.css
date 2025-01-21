@@ -69,6 +69,10 @@ body {
     color: #fff;
 }
 
+.card-container {
+    padding: 5px 0;
+}
+
 .card {
     position: relative;
     background-color: #fff;
@@ -83,6 +87,9 @@ body {
 
 .close-card-icon {
     position: absolute;
+    right: 9px;
+    top: 3px;
+    cursor: pointer;
 }
 
 .close-card-icon-active {
