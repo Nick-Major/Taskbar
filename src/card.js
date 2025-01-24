@@ -6,7 +6,7 @@ export default class Card {
     static get cardMarkup() {
         return `
         <div class="card">
-            <div class="card-content">Что-то</div>
+            <div class="card-content"></div>
             <span class="close-card-icon hidden">X</span>
         </div>
         `

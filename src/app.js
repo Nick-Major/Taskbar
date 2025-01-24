@@ -1,8 +1,71 @@
 import AddCardForm from "./addcardform";
 import Card from "./card";
+import DragAndDrop from "./dnd";
 
 document.addEventListener('DOMContentLoaded', ()=> {
     const btns = document.querySelectorAll('.btn');
+    const cardLists = document.querySelectorAll('.card-list');
+
+    let actualEl;
+
+    function moveAt(pageX, pageY) {
+        actualEl.style.left = pageX + 'px';
+        actualEl.style.top = pageY + 'px';
+    }
+
+    const onMouseMove = (e) => {
+        // если нету acrualElem - не перемещать
+        if (!actualEl) {
+            return;
+        }
+        moveAt(e.pageX, e.pageY);
+    };
+
+    const onMouseUp = (e) => {
+        // если нету acrualElem - не перемещать
+        if (!actualEl) {
+            return;
+        }
+
+
+        const mouseUpItem = e.target;
+        const cardContainer = mouseUpItem.closest('.card-container');
+
+        console.log(actualEl);
+        
+
+        if(cardContainer) {
+            const cl = cardContainer.closest('.card-list');
+            cl.insertBefore(actualEl, cardContainer);
+        };
+
+        actualEl.classList.remove('draggable');
+        actualEl = undefined;
+        document.documentElement.removeEventListener('mousemove', onMouseMove);
+        document.documentElement.removeEventListener('mouseup', onMouseUp);
+    };
+    
+    // если кликнули на крестки - не делать драгндроп
+    document.addEventListener('mousedown', (e) => {
+        if ( e.target.classList.contains('close-card-icon') ) {
+            actualEl = null;
+            return;
+        }
+        actualEl = e.target;
+        const cardContainer = actualEl.closest('.card-container');
+        if(!cardContainer) {
+            return;
+        }
+
+        actualEl = cardContainer;
+
+        if(cardContainer) {
+            actualEl.classList.add('draggable');
+            document.documentElement.addEventListener('mousemove', onMouseMove);
+            document.documentElement.addEventListener('mouseup', onMouseUp);
+        }
+    });
+    
 
     btns.forEach((b) => {
         b.addEventListener('click', (e) => {
@@ -12,12 +75,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
             const addFormContainer = document.createElement('div');
             addFormContainer.classList.add('form-container');
             cardList.before(addFormContainer);
-            // column.append(addFormContainer);
             const addForm = new AddCardForm(addFormContainer);
             addForm.bindToDOM();
             const addCardForm = column.querySelector('.add-card');
             const input = column.querySelector('.add-card-input');
-            e.target.classList.add('hidden');
+            e.target.classList.add('hidden'); // скрываю кнопку добавления виджета создания карточки
 
             input.addEventListener('change', (e)=> {
                 e.preventDefault();
@@ -34,8 +96,23 @@ document.addEventListener('DOMContentLoaded', ()=> {
                     cardList.append(cardContainer);
                     const card = new Card(cardContainer);
                     card.bindCardToDOM(value);
-                    const inputEl = column.querySelector('.add-card-input');
-                    console.log(inputEl.value);
+
+                    const closeCard = cardContainer.querySelector('.close-card-icon');
+
+                    closeCard.addEventListener('click', (e) => {
+                        const target = e.target;
+
+                        const cardContToDel = target.closest('.card-container');
+                        cardContToDel.remove();
+                    })
+                    
+                    cardContainer.addEventListener('mouseover', (e) => {
+                        closeCard.classList.remove('hidden');
+                    });
+
+                    cardContainer.addEventListener('mouseout', (e) => {
+                        closeCard.classList.add('hidden');                        
+                    });
                     
                     const formContainer = column.querySelector('.form-container');
                     const btnEl = column.querySelector('.btn');
@@ -50,9 +127,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     });
 
     document.addEventListener('click', (e) => {
+        
         const target = e.target;
         const isClose = target.classList.contains('close-add-form');
-        const isCardCloseIcon = target.classList.contains('close-card-icon');
     
         if(isClose) {
             const closeEl = target;
@@ -62,41 +139,17 @@ document.addEventListener('DOMContentLoaded', ()=> {
             
             formContainer.remove();
             btnEl.classList.remove('hidden');
-        }
+        };
 
-        if(isCardCloseIcon) {
-            const cardClose = target;
-            const cardContainer = cardClose.closest('.card-container');
+        const isCardClose = target.classList.contains('close-card-icon');
+
+        
+
+        if(isCardClose) {
+            const cardContainer = target.closest('.card-container');
+
             cardContainer.remove();
         }
-    
     });
-
-    document.addEventListener('mouseover', (e) => {
-        const target = e.target;
-        const isCard = target.classList.contains('card');
-
-        if(isCard) {
-            const card = target;
-            const closeCard = card.querySelector('.close-card-icon');
-            console.log('Mouseover!');
-            
-            closeCard.classList.remove('hidden');
-        }
-    });
-
-    document.addEventListener('mouseout', (e) => {
-        const target = e.target;
-        const isCardContainer = target.classList.contains('card-container');
-
-        if(isCardContainer) {
-            const cardContainer = target;
-            const closeCard = cardContainer.querySelector('.close-card-icon');
-            console.log('Mouseout!');
-            
-            closeCard.classList.add('hidden');
-        }
-    });
-
 })
 

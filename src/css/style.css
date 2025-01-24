@@ -37,6 +37,7 @@ body {
 .card-list {
     display: flex;
     flex-direction: column;
+    min-height: 50px;
 }
 
 .form-container {
@@ -101,5 +102,21 @@ body {
 }
 
 .card-container {
-    width: 100%;
+    margin: 2px 0;
+}
+
+.draggable {
+    position: absolute;
+    z-index: 1000;
+    cursor: grab;
+    transition-property: scale, opacity;
+    transition-duration: 0.2s;
+    touch-action: none;
+    width: calc(100% / 3 - 30px);
+}
+
+.is-dragging {
+    cursor: grabbing;
+    opacity: 0.5;
+    scale: 1.05;
 }
