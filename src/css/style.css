@@ -13,6 +13,7 @@ body {
 .column {
     background-color: #c4c9cc;
     box-sizing: border-box;
+    height: 100%;
     padding: 10px 10px;
     margin: 5px 2.5px;
     border-radius: 10px;
@@ -37,7 +38,7 @@ body {
 .card-list {
     display: flex;
     flex-direction: column;
-    min-height: 50px;
+    height: 100%;
 }
 
 .form-container {

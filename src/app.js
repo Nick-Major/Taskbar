@@ -1,10 +1,9 @@
 import AddCardForm from "./addcardform";
 import Card from "./card";
-import DragAndDrop from "./dnd";
 
 document.addEventListener('DOMContentLoaded', ()=> {
     const btns = document.querySelectorAll('.btn');
-    const cardLists = document.querySelectorAll('.card-list');
+    const container = document.querySelector('.container');
 
     let actualEl;
 
@@ -25,24 +24,36 @@ document.addEventListener('DOMContentLoaded', ()=> {
         // если нету acrualElem - не перемещать
         if (!actualEl) {
             return;
-        }
-
-
-        const mouseUpItem = e.target;
-        const cardContainer = mouseUpItem.closest('.card-container');
-
-        console.log(actualEl);
-        
-
-        if(cardContainer) {
-            const cl = cardContainer.closest('.card-list');
-            cl.insertBefore(actualEl, cardContainer);
         };
 
-        actualEl.classList.remove('draggable');
-        actualEl = undefined;
-        document.documentElement.removeEventListener('mousemove', onMouseMove);
-        document.documentElement.removeEventListener('mouseup', onMouseUp);
+        const mouseUpItem = e.target;
+
+        const closestCardList = mouseUpItem.closest('.card-list');
+        
+        // console.log(closestCardList);
+
+        if(!closestCardList) {
+            return;
+        };
+
+        if(closestCardList) {
+            const closestCardContainer = mouseUpItem.closest('.card-container');
+
+            if(!closestCardContainer) {
+                console.log(closestCardList);
+                
+                closestCardList.append(actualEl);
+            } else {
+                closestCardList.insertBefore(actualEl, closestCardContainer);
+            }
+
+            actualEl.classList.remove('draggable');
+            actualEl = null;
+            container.onmousedown = container.onselectstart = function() { return true; };
+            document.documentElement.removeEventListener('mousemove', onMouseMove);
+            document.documentElement.removeEventListener('mouseup', onMouseUp);
+        };
+
     };
     
     // если кликнули на крестки - не делать драгндроп
@@ -61,6 +72,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
         if(cardContainer) {
             actualEl.classList.add('draggable');
+            container.onmousedown = container.onselectstart = function() { return false; };
             document.documentElement.addEventListener('mousemove', onMouseMove);
             document.documentElement.addEventListener('mouseup', onMouseUp);
         }
