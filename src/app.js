@@ -27,26 +27,27 @@ document.addEventListener('DOMContentLoaded', ()=> {
         };
 
         const mouseUpItem = e.target;
+        const closestColumn = mouseUpItem.closest('.column');
+        const closestCardContainer = mouseUpItem.closest('.card-container');
 
-        const closestCardList = mouseUpItem.closest('.card-list');
-        
-        // console.log(closestCardList);
-
-        if(!closestCardList) {
+        if(!closestColumn) {
             return;
         };
 
-        if(closestCardList) {
-            const closestCardContainer = mouseUpItem.closest('.card-container');
+        if(closestColumn) {
+            const closestCardList = closestColumn.querySelector('.card-list');
+            
+            // console.log(actualEl);
+            // console.log(closestCardList);
+            // console.log(closestColumn);
+            // console.log(closestCardContainer);
 
             if(!closestCardContainer) {
-                console.log(closestCardList);
-                
-                closestCardList.append(actualEl);
+                closestCardList.insertBefore(actualEl, null);
             } else {
                 closestCardList.insertBefore(actualEl, closestCardContainer);
             }
-
+            
             actualEl.classList.remove('draggable');
             actualEl = null;
             container.onmousedown = container.onselectstart = function() { return true; };
