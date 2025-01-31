@@ -13,7 +13,6 @@ body {
 .column {
     background-color: #c4c9cc;
     box-sizing: border-box;
-    /* height: 100%; */
     padding: 10px 10px;
     margin: 5px 2.5px;
     border-radius: 10px;
@@ -29,8 +28,10 @@ body {
 
 .btn {
     width: 100%;
+    min-height: 70px;
     background-color: #c4c9cc;
     border: none;
+    border-radius: 10px;
     text-align: left;
 }
 
@@ -48,6 +49,7 @@ body {
 .form-container {
     width: 100%;
     background-color: #fff;
+    min-height: 70px;
 }
 
 .add-card {
@@ -73,6 +75,11 @@ body {
 .add-card-btn {
     background-color: #32CD32;
     color: #fff;
+    cursor: pointer;
+}
+
+.close-add-form {
+    cursor: pointer;
 }
 
 .card-container {
@@ -113,7 +120,6 @@ body {
 
 .draggable {
     position: absolute;
-    /* pointer-events: none; */
     cursor: grabbing;
     z-index: 1000;
     transition-property: scale, opacity;
