@@ -6,75 +6,86 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const container = document.querySelector('.container');
 
     let actualEl;
-
-    function moveAt(pageX, pageY) {
-        actualEl.style.left = pageX + 'px';
-        actualEl.style.top = pageY + 'px';
-    }
+    let shiftX;
+    let shiftY;
 
     const onMouseMove = (e) => {
-        // если нету acrualElem - не перемещать
+        // если нету actualEl - не перемещать
         if (!actualEl) {
             return;
-        }
-        moveAt(e.pageX, e.pageY);
+        };
+        
+        
+        actualEl.style.left = e.pageX - shiftX + 'px';
+        actualEl.style.top = e.pageY - shiftY + 'px';
     };
 
     const onMouseUp = (e) => {
-        // если нету acrualElem - не перемещать
+        // если нету actualEl - не перемещать
         if (!actualEl) {
             return;
         };
 
-        const mouseUpItem = e.target;
-        const closestColumn = mouseUpItem.closest('.column');
-        const closestCardContainer = mouseUpItem.closest('.card-container');
+        let clientX = e.clientX;
+        let clientY = e.clientY;
 
-        if(!closestColumn) {
+        const bottomEl = document.elementsFromPoint(clientX, clientY);
+        const cardList = bottomEl.find(tag => tag.classList.contains('card-list'));
+        const cardContainerRef = bottomEl.filter(tag=>tag.classList.contains('card-container'))[1]
+
+        // console.log('elementsfrompoint', bottomEl, cardList, cardContainerRef);
+
+        // Если отжали мышь вне столбца
+        if (!cardList) {
+            actualEl.classList.remove('draggable')
+            actualEl = null;
             return;
         };
+        
+        // Вставляем карточку в новое место
+        cardList.insertBefore(actualEl, cardContainerRef);
 
-        if(closestColumn) {
-            const closestCardList = closestColumn.querySelector('.card-list');
-            
-            // console.log(actualEl);
-            // console.log(closestCardList);
-            // console.log(closestColumn);
-            // console.log(closestCardContainer);
-
-            if(!closestCardContainer) {
-                closestCardList.insertBefore(actualEl, null);
-            } else {
-                closestCardList.insertBefore(actualEl, closestCardContainer);
-            }
-            
-            actualEl.classList.remove('draggable');
-            actualEl = null;
-            container.onmousedown = container.onselectstart = function() { return true; };
-            document.documentElement.removeEventListener('mousemove', onMouseMove);
-            document.documentElement.removeEventListener('mouseup', onMouseUp);
-        };
-
+        actualEl.classList.remove('draggable');
+        actualEl = null;
+        shiftX = null;
+        shiftY = null;
+        container.onmousedown = container.onselectstart = function() { return true; };
+        
+        document.documentElement.removeEventListener('mousemove', onMouseMove);
+        // document.documentElement.removeEventListener('mouseover', onMouseOver);
+        document.documentElement.removeEventListener('mouseup', onMouseUp);
+        
     };
     
     // если кликнули на крестки - не делать драгндроп
-    document.addEventListener('mousedown', (e) => {
+    document.documentElement.addEventListener('mousedown', (e) => {
         if ( e.target.classList.contains('close-card-icon') ) {
             actualEl = null;
             return;
-        }
+        };
         actualEl = e.target;
         const cardContainer = actualEl.closest('.card-container');
         if(!cardContainer) {
             return;
-        }
+        };
 
         actualEl = cardContainer;
 
+
+        // const cardCap = document.createElement('div');
+        // cardCap.classList.add('card-cap');
+        // actualEl.parentNode.insertBefore(cardCap, actualEl);
+        
+        let currentShiftX = e.clientX - cardContainer.getBoundingClientRect().left;
+        let currentShiftY = e.clientY - cardContainer.getBoundingClientRect().top;
+
         if(cardContainer) {
+            shiftX = currentShiftX;
+            shiftY = currentShiftY;
             actualEl.classList.add('draggable');
             container.onmousedown = container.onselectstart = function() { return false; };
             document.documentElement.addEventListener('mousemove', onMouseMove);
+            // document.documentElement.addEventListener('mouseover', onMouseOver);
             document.documentElement.addEventListener('mouseup', onMouseUp);
         }
     });
@@ -162,7 +173,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
             const cardContainer = target.closest('.card-container');
 
             cardContainer.remove();
-        }
+        };
     });
 })
-
