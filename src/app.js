@@ -8,16 +8,39 @@ document.addEventListener('DOMContentLoaded', ()=> {
     let actualEl;
     let shiftX;
     let shiftY;
+    let cardCap = document.createElement('div');
+    let cardWidth;
+    let cardHeight;
 
     const onMouseMove = (e) => {
         // если нету actualEl - не перемещать
         if (!actualEl) {
             return;
         };
-        
-        
+
         actualEl.style.left = e.pageX - shiftX + 'px';
         actualEl.style.top = e.pageY - shiftY + 'px';
+    };
+
+    const onMouseOver = (e) => {
+        // e.stopPropagation();
+        // let clientX = e.clientX;
+        // let clientY = e.clientY;
+
+        // let target = e.target.classList.contains('card-list');
+        // let relatedTarget = e.relatedTarget;
+
+        // console.log(target, relatedTarget);
+        
+
+        // const bottomElements = document.elementsFromPoint(e.clientX, e.clientY);
+        // console.log(bottomElements);
+
+        // const cardList = bottomElements.find(tag => tag.classList.contains('card-list'));
+        // console.log(cardList);
+        
+        // const cardContainerRef = bottomElements.filter(tag=>tag.classList.contains('card-container'))[1];
+        // console.log(cardContainerRef);
     };
 
     const onMouseUp = (e) => {
@@ -31,7 +54,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
         const bottomEl = document.elementsFromPoint(clientX, clientY);
         const cardList = bottomEl.find(tag => tag.classList.contains('card-list'));
-        const cardContainerRef = bottomEl.filter(tag=>tag.classList.contains('card-container'))[1]
+        const cardContainerRef = bottomEl.filter(tag=>tag.classList.contains('card-container'))[1];
 
         // console.log('elementsfrompoint', bottomEl, cardList, cardContainerRef);
 
@@ -45,14 +68,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
         // Вставляем карточку в новое место
         cardList.insertBefore(actualEl, cardContainerRef);
 
+        actualEl.querySelector('.grabbing-hand').classList.add('hidden');
         actualEl.classList.remove('draggable');
         actualEl = null;
         shiftX = null;
         shiftY = null;
+
+        document.documentElement.style.cursor = 'auto';
         container.onmousedown = container.onselectstart = function() { return true; };
-        
         document.documentElement.removeEventListener('mousemove', onMouseMove);
-        // document.documentElement.removeEventListener('mouseover', onMouseOver);
+        document.documentElement.removeEventListener('mouseover', onMouseOver);
         document.documentElement.removeEventListener('mouseup', onMouseUp);
         
     };
@@ -69,8 +94,24 @@ document.addEventListener('DOMContentLoaded', ()=> {
             return;
         };
 
+        const hand = cardContainer.querySelector('.grabbing-hand');
+        
+
         actualEl = cardContainer;
 
+        let rect = actualEl.getBoundingClientRect();
+        let currentCardContainerWidth = rect.width;
+        let currentCardContainerHeight = rect.height;
+
+        cardWidth = currentCardContainerWidth;
+        cardHeight = currentCardContainerHeight;
+        // console.log(cardContainerWidth, cardContainerHeight);
+        
+        let offsetX = e.offsetX;
+        let offsetY = e.offsetY;
+
+        console.log(offsetX);
+        
 
         // const cardCap = document.createElement('div');
         // cardCap.classList.add('card-cap');
@@ -83,9 +124,15 @@ document.addEventListener('DOMContentLoaded', ()=> {
             shiftX = currentShiftX;
             shiftY = currentShiftY;
             actualEl.classList.add('draggable');
+            hand.style.left = offsetX + 'px';
+            hand.style.top = offsetY + 'px';
+            hand.classList.remove('hidden');
+            console.log(hand.style.left);
+            
+            document.documentElement.style.cursor = 'none';
             container.onmousedown = container.onselectstart = function() { return false; };
             document.documentElement.addEventListener('mousemove', onMouseMove);
-            // document.documentElement.addEventListener('mouseover', onMouseOver);
+            document.documentElement.addEventListener('mouseover', onMouseOver);
             document.documentElement.addEventListener('mouseup', onMouseUp);
         }
     });
