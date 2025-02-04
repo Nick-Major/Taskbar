@@ -120,7 +120,8 @@ body {
 
 .draggable {
     position: absolute;
-    pointer-events: none;
+    /* pointer-events: none; */
+    cursor: grabbing;
     z-index: 1000;
     transition-property: scale, opacity;
     transition-duration: 0.2s;
@@ -135,5 +136,5 @@ body {
 }
 
 .card-cap {
-    background-color: #aaa;
+    background-color: red;
 }

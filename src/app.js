@@ -8,9 +8,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
     let actualEl;
     let shiftX;
     let shiftY;
-    let cardCap = document.createElement('div');
-    let cardWidth;
-    let cardHeight;
+    let cardIsDragging;
+    let cardCap;
 
     const onMouseMove = (e) => {
         // если нету actualEl - не перемещать
@@ -18,29 +17,21 @@ document.addEventListener('DOMContentLoaded', ()=> {
             return;
         };
 
+        // при взятии карточки, вместо взятой карточкой должна появляться заглушка
+        // при наведении на другую карточку, она должна сдвигаться вниз и вместо нее должна появляться заглушка
+        let closestCardContainer = e.target.closest('.card-container');
+        console.log(closestCardContainer);
+        console.log(cardCap);
+
+        if (!closestCardContainer) {
+            return;
+        };
+
+        closestCardContainer.parentNode.insertBefore(cardCap, closestCardContainer);
+
+        // отрисовываем actualEl (card-container) во времея перемещения курсора
         actualEl.style.left = e.pageX - shiftX + 'px';
         actualEl.style.top = e.pageY - shiftY + 'px';
-    };
-
-    const onMouseOver = (e) => {
-        // e.stopPropagation();
-        // let clientX = e.clientX;
-        // let clientY = e.clientY;
-
-        // let target = e.target.classList.contains('card-list');
-        // let relatedTarget = e.relatedTarget;
-
-        // console.log(target, relatedTarget);
-        
-
-        // const bottomElements = document.elementsFromPoint(e.clientX, e.clientY);
-        // console.log(bottomElements);
-
-        // const cardList = bottomElements.find(tag => tag.classList.contains('card-list'));
-        // console.log(cardList);
-        
-        // const cardContainerRef = bottomElements.filter(tag=>tag.classList.contains('card-container'))[1];
-        // console.log(cardContainerRef);
     };
 
     const onMouseUp = (e) => {
@@ -49,98 +40,101 @@ document.addEventListener('DOMContentLoaded', ()=> {
             return;
         };
 
+        // получаем координаты курсора
         let clientX = e.clientX;
         let clientY = e.clientY;
 
+        // получаем живую коллекцию элементов под курсором по координатам курсора
         const bottomEl = document.elementsFromPoint(clientX, clientY);
+
+        // получаем контейнер для карточек
         const cardList = bottomEl.find(tag => tag.classList.contains('card-list'));
-        const cardContainerRef = bottomEl.filter(tag=>tag.classList.contains('card-container'))[1];
-
-        // console.log('elementsfrompoint', bottomEl, cardList, cardContainerRef);
-
-        // Если отжали мышь вне столбца
-        if (!cardList) {
-            actualEl.classList.remove('draggable')
-            actualEl = null;
-            return;
-        };
         
         // Вставляем карточку в новое место
-        cardList.insertBefore(actualEl, cardContainerRef);
+        cardList.insertBefore(actualEl, cardCap);
 
-        actualEl.querySelector('.grabbing-hand').classList.add('hidden');
+        // убираем абсолютное позиционирование с actualEl
         actualEl.classList.remove('draggable');
+
+        // обнуляем actualEl и расстояние от курсора до левого верхнего угла card-container
+        cardCap.remove();
+        cardCap = null;
         actualEl = null;
         shiftX = null;
         shiftY = null;
 
+        // возвращаем стили курсора элементам
         document.documentElement.style.cursor = 'auto';
-        container.onmousedown = container.onselectstart = function() { return true; };
+
+        // возвращаем выделение текста в документе
+        container.onselectstart = function() { return true; };
+
+        // отписываемся от mousemove, mouseover, mouseup
         document.documentElement.removeEventListener('mousemove', onMouseMove);
-        document.documentElement.removeEventListener('mouseover', onMouseOver);
         document.documentElement.removeEventListener('mouseup', onMouseUp);
-        
     };
     
-    // если кликнули на крестки - не делать драгндроп
+    
     document.documentElement.addEventListener('mousedown', (e) => {
+        // если кликнули на крестики - не делать драгндроп
         if ( e.target.classList.contains('close-card-icon') ) {
             actualEl = null;
             return;
         };
+        // записываем в actualEl e.target
         actualEl = e.target;
+
+        //получаем ближайший к e.target card-container
         const cardContainer = actualEl.closest('.card-container');
+
+        // если нету card-container начинаем поиск заново
         if(!cardContainer) {
             return;
         };
 
-        const hand = cardContainer.querySelector('.grabbing-hand');
-        
-
+        // записываем в actualEl ближайший card-container
         actualEl = cardContainer;
 
-        let rect = actualEl.getBoundingClientRect();
-        let currentCardContainerWidth = rect.width;
-        let currentCardContainerHeight = rect.height;
+        let cardEl = actualEl.querySelector('.card');
 
-        cardWidth = currentCardContainerWidth;
-        cardHeight = currentCardContainerHeight;
-        // console.log(cardContainerWidth, cardContainerHeight);
-        
-        let offsetX = e.offsetX;
-        let offsetY = e.offsetY;
+        let widthEl = cardEl.offsetWidth;
+        let height = cardEl.offsetHeight;
 
-        console.log(offsetX);
-        
+        cardCap = document.createElement('div');
+        cardCap.style.width = widthEl + 'px';
+        cardCap.style.height = height + 'px';
+        cardCap.classList.add('card-cap');
 
-        // const cardCap = document.createElement('div');
-        // cardCap.classList.add('card-cap');
-        // actualEl.parentNode.insertBefore(cardCap, actualEl);
+        actualEl.parentNode.insertBefore(cardCap, actualEl);
         
+        // получаем расстояние от курсора до левого верхнего угла card-container
         let currentShiftX = e.clientX - cardContainer.getBoundingClientRect().left;
         let currentShiftY = e.clientY - cardContainer.getBoundingClientRect().top;
 
-        if(cardContainer) {
-            shiftX = currentShiftX;
-            shiftY = currentShiftY;
-            actualEl.classList.add('draggable');
-            hand.style.left = offsetX + 'px';
-            hand.style.top = offsetY + 'px';
-            hand.classList.remove('hidden');
-            console.log(hand.style.left);
-            
-            document.documentElement.style.cursor = 'none';
-            container.onmousedown = container.onselectstart = function() { return false; };
-            document.documentElement.addEventListener('mousemove', onMouseMove);
-            document.documentElement.addEventListener('mouseover', onMouseOver);
-            document.documentElement.addEventListener('mouseup', onMouseUp);
-        }
+        // записываем расстояние от курсора до левого верхнего угла card-container в переменные в глобальной области видимости
+        shiftX = currentShiftX;
+        shiftY = currentShiftY;
+
+        // делаем actualEl (card-container) абсолютно спозиционированным
+        actualEl.classList.add('draggable');
+        
+        // отключаем появление курсора на всем документе
+        document.documentElement.style.cursor = 'none';
+
+        // отключаем выделение текста на документе
+        container.onselectstart = function() { return false; };
+
+        // подписываемся на mousemove, mouseover, mouseup
+        document.documentElement.addEventListener('mousemove', onMouseMove);
+        document.documentElement.addEventListener('mouseup', onMouseUp);
     });
     
-
+    // клик по кнопкам, которые открывают форму создания карточки
     btns.forEach((b) => {
         b.addEventListener('click', (e) => {
+            // убираем поведение по умолчанию, чтобы не обновлялась страница
             e.preventDefault();
+            // добавляем и показываем форму создания карточки
             const column = e.target.closest('.column');
             const cardList = column.querySelector('.card-list');
             const addFormContainer = document.createElement('div');
@@ -150,17 +144,20 @@ document.addEventListener('DOMContentLoaded', ()=> {
             addForm.bindToDOM();
             const addCardForm = column.querySelector('.add-card');
             const input = column.querySelector('.add-card-input');
-            e.target.classList.add('hidden'); // скрываю кнопку добавления виджета создания карточки
-
+            // скрываем кнопку добавления виджета создания карточки
+            e.target.classList.add('hidden');
+            // заполняем карточку
             input.addEventListener('change', (e)=> {
                 e.preventDefault();
 
                 const value = e.target.value;
                 const cardAddBtn = column.querySelector('.add-card-btn');
 
-
+                // добавляем карточку в колонку по клику на кнопку
                 cardAddBtn.addEventListener('click', (e) => {
+                    // убираем поведение по умолчанию, чтобы не обновлялась страница
                     e.preventDefault();
+                    // заполняем текст новой карточки и добавляем карточку в текущую колонку
                     const cardList = column.querySelector('.card-list');
                     const cardContainer = document.createElement('div');
                     cardContainer.classList.add('card-container');
@@ -168,8 +165,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
                     const card = new Card(cardContainer);
                     card.bindCardToDOM(value);
 
+                    // находим крестик на карточке
                     const closeCard = cardContainer.querySelector('.close-card-icon');
 
+                    // по нажатию на крестик удаляем выбранную карточку
                     closeCard.addEventListener('click', (e) => {
                         const target = e.target;
 
@@ -177,31 +176,50 @@ document.addEventListener('DOMContentLoaded', ()=> {
                         cardContToDel.remove();
                     })
                     
+                    // при наведении на карточку показываем крестик
                     cardContainer.addEventListener('mouseover', (e) => {
+                        cardIsDragging = container.querySelector('.draggable');
+                        
+                        if(cardIsDragging) {
+                            return;
+                        };
+
                         closeCard.classList.remove('hidden');
                     });
 
+                    // при уводе курсора с карточки скрываем крестик 
                     cardContainer.addEventListener('mouseout', (e) => {
+                        cardIsDragging = container.querySelector('.draggable');
+
+                        if(cardIsDragging) {
+                            return;
+                        };
+
                         closeCard.classList.add('hidden');                        
                     });
                     
-                    const formContainer = column.querySelector('.form-container');
+                    //находим кнопку добавления карточки на страницу
                     const btnEl = column.querySelector('.btn');
 
+                    // сбрасываем значения в полях ввода карточки
                     addCardForm.reset();
                     
-                    formContainer.remove();
+                    // удаляем виджет добавления карточки
+                    addFormContainer.remove();
+                    // показываем кнопку открытия формы добавления карточки
                     btnEl.classList.remove('hidden');
                 })
             })
         })
     });
 
+    // скрываем форму создания карточки по клику на крестик
     document.addEventListener('click', (e) => {
         
         const target = e.target;
         const isClose = target.classList.contains('close-add-form');
-    
+        
+        // убираем со траницы форму создания карточки и показываем кнопку открытия формы создания карточки
         if(isClose) {
             const closeEl = target;
             const formContainer = closeEl.closest('.form-container');
@@ -212,9 +230,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
             btnEl.classList.remove('hidden');
         };
 
+        // удаляем карточку по клику на крестик
         const isCardClose = target.classList.contains('close-card-icon');
-
-        
 
         if(isCardClose) {
             const cardContainer = target.closest('.card-container');
