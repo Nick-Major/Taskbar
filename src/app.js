@@ -5,10 +5,46 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const btns = document.querySelectorAll('.btn');
     const container = document.querySelector('.container');
 
+    // Функция для сохранения текущего состояния DOM
+    function saveDOMState() {
+        const container = document.querySelector('.container');
+        localStorage.setItem('savedDOM', container.innerHTML); // Сохраняем HTML
+    };
+
+    // Функция для восстановления состояния DOM
+    function restoreDOMState() {
+        const savedDOM = localStorage.getItem('savedDOM');
+        if (savedDOM) {
+          const container = document.querySelector('.container');
+          container.innerHTML = savedDOM; // Восстанавливаем HTML
+        };
+    };
+
+    // Настройка MutationObserver
+    const observer = new MutationObserver((mutationsList) => {
+        mutationsList.forEach((mutation) => {
+          if (mutation.type === 'childList' || mutation.type === 'attributes') {
+            saveDOMState(); // Сохраняем состояние при изменении DOM
+          }
+        });
+    });
+
+    // Начало наблюдения за изменениями
+    observer.observe(container, {
+      childList: true, // Отслеживать изменения в дочерних элементах
+      subtree: true,   // Отслеживать изменения во всём поддереве
+      attributes: true, // Отслеживать изменения атрибутов
+      characterData: true // Отслеживать изменения текстовых узлов
+    });
+
+    // Восстановление состояния DOM при загрузке страницы
+    window.addEventListener('load', () => {
+      restoreDOMState();
+    });
+
     let actualEl;
     let shiftX;
     let shiftY;
-    let cardIsDragging;
     let cardCap;
 
     const onMouseMove = (e) => {
@@ -20,14 +56,19 @@ document.addEventListener('DOMContentLoaded', ()=> {
         // при взятии карточки, вместо взятой карточкой должна появляться заглушка
         // при наведении на другую карточку, она должна сдвигаться вниз и вместо нее должна появляться заглушка
         let closestCardContainer = e.target.closest('.card-container');
-        console.log(closestCardContainer);
-        console.log(cardCap);
+        let closestCardList = e.target.closest('.card-list');
 
-        if (!closestCardContainer) {
+        if (!closestCardList) {
             return;
         };
 
-        closestCardContainer.parentNode.insertBefore(cardCap, closestCardContainer);
+        if (closestCardList && !closestCardContainer) {
+            closestCardList.insertBefore(cardCap, null);
+        };
+
+        if (closestCardContainer) {
+            closestCardContainer.parentNode.insertBefore(cardCap, closestCardContainer);
+        };
 
         // отрисовываем actualEl (card-container) во времея перемещения курсора
         actualEl.style.left = e.pageX - shiftX + 'px';
@@ -48,7 +89,19 @@ document.addEventListener('DOMContentLoaded', ()=> {
         const bottomEl = document.elementsFromPoint(clientX, clientY);
 
         // получаем контейнер для карточек
-        const cardList = bottomEl.find(tag => tag.classList.contains('card-list'));
+        const cardList = bottomEl.find(tag => tag.classList.value === 'card-list');
+
+        // console.log('Колонка: ', cardList);
+        // console.log('Карточка: ', actualEl);
+        // console.log('Заглушка', cardCap);
+        
+        if (!cardList) {
+            return;
+        };
+
+        if (!cardCap.parentNode === cardList) {
+            return
+        };
         
         // Вставляем карточку в новое место
         cardList.insertBefore(actualEl, cardCap);
@@ -56,9 +109,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
         // убираем абсолютное позиционирование с actualEl
         actualEl.classList.remove('draggable');
 
-        // обнуляем actualEl и расстояние от курсора до левого верхнего угла card-container
+        // обнуляем actualEl, убираем cardCap, обнуляем расстояние от курсора до левого верхнего угла card-container
         cardCap.remove();
-        cardCap = null;
         actualEl = null;
         shiftX = null;
         shiftY = null;
@@ -95,16 +147,18 @@ document.addEventListener('DOMContentLoaded', ()=> {
         // записываем в actualEl ближайший card-container
         actualEl = cardContainer;
 
+        // получаем размеры заглушки
         let cardEl = actualEl.querySelector('.card');
-
         let widthEl = cardEl.offsetWidth;
         let height = cardEl.offsetHeight;
 
+        // записываем в переменную тэг заглушки и задаем ей размеры и класс
         cardCap = document.createElement('div');
         cardCap.style.width = widthEl + 'px';
         cardCap.style.height = height + 'px';
         cardCap.classList.add('card-cap');
 
+        // при взятии карточки на ее место устанавливаем заглушку
         actualEl.parentNode.insertBefore(cardCap, actualEl);
         
         // получаем расстояние от курсора до левого верхнего угла card-container
@@ -174,27 +228,15 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
                         const cardContToDel = target.closest('.card-container');
                         cardContToDel.remove();
-                    })
+                    });
                     
                     // при наведении на карточку показываем крестик
                     cardContainer.addEventListener('mouseover', (e) => {
-                        cardIsDragging = container.querySelector('.draggable');
-                        
-                        if(cardIsDragging) {
-                            return;
-                        };
-
                         closeCard.classList.remove('hidden');
                     });
 
                     // при уводе курсора с карточки скрываем крестик 
                     cardContainer.addEventListener('mouseout', (e) => {
-                        cardIsDragging = container.querySelector('.draggable');
-
-                        if(cardIsDragging) {
-                            return;
-                        };
-
                         closeCard.classList.add('hidden');                        
                     });
                     
@@ -228,15 +270,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
             
             formContainer.remove();
             btnEl.classList.remove('hidden');
-        };
-
-        // удаляем карточку по клику на крестик
-        const isCardClose = target.classList.contains('close-card-icon');
-
-        if(isCardClose) {
-            const cardContainer = target.closest('.card-container');
-
-            cardContainer.remove();
         };
     });
 })

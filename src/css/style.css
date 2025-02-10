@@ -136,5 +136,9 @@ body {
 }
 
 .card-cap {
-    background-color: red;
+    background-color: #495057;
+}
+
+.hide-cursor {
+    cursor: none;
 }
